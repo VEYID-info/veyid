@@ -1,0 +1,94 @@
+{
+  "verifications": [
+    {
+      "id": 1784033794343,
+      "fullName": "",
+      "email": "",
+      "mobile": "",
+      "verificationType": "full",
+      "status": "Approved",
+      "createdAt": "2026-07-14T12:56:34.343Z"
+    },
+    {
+      "id": 1784034301324,
+      "fullName": "",
+      "email": "",
+      "mobile": "",
+      "verificationType": "full",
+      "status": "Rejected",
+      "createdAt": "2026-07-14T13:05:01.324Z"
+    },
+    {
+      "id": 1784034305962,
+      "fullName": "",
+      "email": "",
+      "mobile": "",
+      "verificationType": "basic",
+      "status": "Pending",
+      "createdAt": "2026-07-14T13:05:05.962Z"
+    },
+    {
+      "id": 1784034900130,
+      "fullName": "sachyy",
+      "email": "test@gmail.com",
+      "mobile": "8726272627",
+      "verificationType": "basic",
+      "status": "Pending",
+      "createdAt": "2026-07-14T13:15:00.130Z"
+    },
+    {
+      "id": 1784035031169,
+      "fullName": "sachyy",
+      "email": "obssam99@gmail.com",
+      "mobile": "087168822628",
+      "verificationType": "basic",
+      "status": "Rejected",
+      "createdAt": "2026-07-14T13:17:11.169Z"
+    },
+    {
+      "id": 1784036242420,
+      "fullName": "sam",
+      "email": "test1234@gmail.com",
+      "mobile": "8712737862",
+      "verificationType": "basic",
+      "status": "Approved",
+      "createdAt": "2026-07-14T13:37:22.420Z"
+    },
+    {
+      "id": 1784036577622,
+      "fullName": "sachyy",
+      "email": "test321@gmail.com",
+      "mobile": "72628262826",
+      "verificationType": "basic",
+      "status": "Pending",
+      "createdAt": "2026-07-14T13:42:57.622Z"
+    },
+    {
+      "id": 1784036934647,
+      "fullName": "sachin Bhardwaj",
+      "email": "obssam99@gmail.com",
+      "mobile": "08716876964",
+      "verificationType": "basic",
+      "status": "Pending",
+      "createdAt": "2026-07-14T13:48:54.647Z"
+    },
+    {
+      "id": 1784042066453,
+      "fullName": "",
+      "email": "",
+      "mobile": "",
+      "verificationType": "full",
+      "status": "Rejected",
+      "createdAt": "2026-07-14T15:14:26.453Z"
+    },
+    {
+      "id": 1784114253887,
+      "fullName": "sam",
+      "email": "test12@gmail.com",
+      "mobile": "07006876964",
+      "verificationType": "basic",
+      "status": "Approved",
+      "createdAt": "2026-07-15T11:17:33.887Z"
+    }
+  ]
+}
