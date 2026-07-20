@@ -1,8 +1,5 @@
 import { useState } from "react";
 
-const [selfie, setSelfie] = useState(null);
-const [document, setDocument] = useState(null);
-const [documentType, setDocumentType] = useState("");
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -12,6 +9,10 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [emailOtp, setEmailOtp] = useState("");
+
+const [selfie, setSelfie] = useState(null);
+const [document, setDocument] = useState(null);
+const [documentType, setDocumentType] = useState("");
 
   const handleGetVerified = async () => {
     try {
