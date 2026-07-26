@@ -189,16 +189,16 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
 </button>
 
 <input
-<  type="text"
-<  placeholder="Enter Email OTP"
-<  value={emailOtp}
-<  onChange={(e) => setEmailOtp(e.target.value)}
-<  style={{
-<    width: "100%",
-<    padding: "10px",
-<    marginBottom: "15px",
-<  }}
-</>
+  type="text"
+  placeholder="Enter Email OTP"
+  value={emailOtp}
+  onChange={(e) => setEmailOtp(e.target.value)}
+  style={{
+    width: "100%",
+    padding: "10px",
+    marginBottom: "15px",
+  }}
+/>
 
           <input
             type="text"
