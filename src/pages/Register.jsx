@@ -188,7 +188,7 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
     : "Send Email OTP"}
 </button>
 
-<<input
+<input
 <  type="text"
 <  placeholder="Enter Email OTP"
 <  value={emailOtp}
