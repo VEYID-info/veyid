@@ -12,6 +12,9 @@ export default function Register() {
 const [emailVerified, setEmailVerified] = useState(false);
 const [sendingOtp, setSendingOtp] = useState(false);
 
+const [verifyingOtp, setVerifyingOtp] = useState(false);
+const [otpError, setOtpError] = useState("");
+
 const [selfie, setSelfie] = useState(null);
 const [document, setDocument] = useState(null);
 const [documentType, setDocumentType] = useState("");
@@ -33,15 +36,59 @@ const handleSendOtp = async () => {
       body: JSON.stringify({ email }),
     });
 
-    const data = await response.json();
+const data = await response.json();
 
-    alert(data.message);
-  } catch (error) {
+setOtpError("");
+setEmailVerified(false);
+
+alert(data.message);
+ } catch (error) {
     console.error(error);
     alert("Failed to send OTP");
   }
 
   setSendingOtp(false);
+};
+
+const handleVerifyOtp = async () => {
+  if (!emailOtp) {
+    alert("Enter OTP");
+    return;
+  }
+
+  setVerifyingOtp(true);
+
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:3000/api/verify-email-otp",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          otp: emailOtp,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      setEmailVerified(true);
+      setOtpError("");
+      alert("Email Verified");
+    } else {
+      setEmailVerified(false);
+      setOtpError("Wrong OTP");
+      alert(data.message);
+    }
+  } catch (err) {
+    alert("Verification failed");
+  }
+
+  setVerifyingOtp(false);
 };
 
   const handleGetVerified = async () => {
@@ -159,17 +206,18 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
             }}
           />
 
+<div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={{
-              width: "100%",
+              flex: 1,
               padding: "10px",
-              marginBottom: "15px",
             }}
-          />
+        />
 
 
 <button
@@ -177,7 +225,7 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
   onClick={handleSendOtp}
   disabled={sendingOtp || emailVerified}
   style={{
-    padding: "10px",
+    padding: "10px  14px",
     marginBottom: "10px",
     cursor: "pointer",
   }}
@@ -187,19 +235,48 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
     : sendingOtp   ? "Sending..."
     : "Send Email OTP"}
 </button>
+</div>
 
 <input
+<div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
   type="text"
   placeholder="Enter Email OTP"
   value={emailOtp}
   onChange={(e) => setEmailOtp(e.target.value)}
   style={{
-    width: "100%",
+    flex: 1,
     padding: "10px",
-    marginBottom: "15px",
   }}
 />
+<button
+  type="button"
+  onClick={handleVerifyOtp}
+  disabled={emailVerified || verifyingOtp}
+  style={{
+    padding: "10px 14px",
+    cursor: "pointer",
+  }}
+>
+  {emailVerified
+    ? "Verified"
+    : verifyingOtp
+    ? "Checking..."
+    : "Verify"}
+</button>
+</div>
 
+{otpError && (
+  <p style={{ color: "red", marginBottom: "15px" }}>
+    ❌ {otpError}
+  </p>
+)}
+
+{emailVerified && (
+  <p style={{ color: "green", marginBottom: "15px" }}>
+    ✅ Email Verified
+  </p>
+)}
+          
           <input
             type="text"
             placeholder="Mobile Number"
