@@ -4,15 +4,45 @@ import { useState } from "react";
 export default function Register() {
   const [step, setStep] = useState(1);
   const [verificationType, setVerificationType] = useState("");
-
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [emailOtp, setEmailOtp] = useState("");
 
+const [emailVerified, setEmailVerified] = useState(false);
+const [sendingOtp, setSendingOtp] = useState(false);
+
 const [selfie, setSelfie] = useState(null);
 const [document, setDocument] = useState(null);
 const [documentType, setDocumentType] = useState("");
+
+const handleSendOtp = async () => {
+  if (!email) {
+    alert("Please enter your email");
+    return;
+  }
+
+  setSendingOtp(true);
+
+  try {
+    const response = await fetch("http://127.0.0.1:3000/api/send-email-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await response.json();
+
+    alert(data.message);
+  } catch (error) {
+    console.error(error);
+    alert("Failed to send OTP");
+  }
+
+  setSendingOtp(false);
+};
 
   const handleGetVerified = async () => {
     try {
@@ -141,33 +171,40 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
             }}
           />
 
+
+<button
+  type="button"
+  onClick={handleSendOtp}
+  disabled={sendingOtp || emailVerified}
+  style={{
+    padding: "10px",
+    marginBottom: "10px",
+    cursor: "pointer",
+  }}
+>
+  {emailVerified
+    ? "✅ Email Verified"
+    : sendingOtp   ? "Sending..."
+    : "Send Email OTP"}
+</button>
+
+<<input
+<  type="text"
+<  placeholder="Enter Email OTP"
+<  value={emailOtp}
+<  onChange={(e) => setEmailOtp(e.target.value)}
+<  style={{
+<    width: "100%",
+<    padding: "10px",
+<    marginBottom: "15px",
+<  }}
+</>
+
           <input
             type="text"
             placeholder="Mobile Number"
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "15px",
-            }}
-          />
-
-          <button
-            type="button"
-            style={{
-              padding: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            Send Email OTP
-          </button>
-
-          <input
-            type="text"
-            placeholder="Enter Email OTP"
-            value={emailOtp}
-            onChange={(e) => setEmailOtp(e.target.value)}
             style={{
               width: "100%",
               padding: "10px",

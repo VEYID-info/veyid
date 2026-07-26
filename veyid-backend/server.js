@@ -1,3 +1,6 @@
+require("dotenv").config();
+const SibApiV3Sdk = require("sib-api-v3-sdk");
+
 const express = require("express");
 const cors = require("cors");
 const { db, initDB } = require("./db");
@@ -5,6 +8,13 @@ const multer = require("multer");
 const path = require("path");
 
 const app = express();
+
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+
+defaultClient.authentications["api-key"].apiKey =
+  process.env.BREVO_API_KEY;
+
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 app.use(cors());
 app.use(express.json());
@@ -152,6 +162,57 @@ app.put("/api/verifications/:id/reject", async (req, res) => {
   }
 });
 
+app.post("/api/send-email-otp", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email is required",
+    });
+  }
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  try {
+    const emailData = {
+      sender: {
+        name: "VEYID",
+        email: "info.veyid@gmail.com",
+      },
+      to: [
+        {
+          email: email,
+        },
+      ],
+      subject: "Your VEYID Verification OTP",
+      htmlContent: `
+        <h2>VEYID Email Verification</h2>
+        <p>Your OTP is:</p>
+        <h1>${otp}</h1>
+        <p>This OTP is valid for 10 minutes.</p>
+      `,
+    };
+
+const result = await apiInstance.sendTransacEmail(emailData);
+console.log(result);
+
+    res.json({
+      success: true,
+      otp,
+      message: "OTP sent successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to send OTP",
+    });
+  }
+});
+
 app.listen(3000, () => {
   console.log("Server running on port 3000");
 });
+
