@@ -237,8 +237,9 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
 </button>
 </div>
 
-<input
 <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+
+<input
   type="text"
   placeholder="Enter Email OTP"
   value={emailOtp}
