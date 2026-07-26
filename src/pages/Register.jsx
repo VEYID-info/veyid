@@ -225,8 +225,9 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
   onClick={handleSendOtp}
   disabled={sendingOtp || emailVerified}
   style={{
-    padding: "10px  14px",
-    marginBottom: "10px",
+    padding: "10px  16px",
+    minWidth: "100px",
+    whiteSpace: "nowrap",
     cursor: "pointer",
   }}
 >
@@ -254,7 +255,9 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
   onClick={handleVerifyOtp}
   disabled={emailVerified || verifyingOtp}
   style={{
-    padding: "10px 14px",
+    padding: "10px 16px",
+    minWidth: "90px",
+    whiteSpace: "nowrap",
     cursor: "pointer",
   }}
 >
