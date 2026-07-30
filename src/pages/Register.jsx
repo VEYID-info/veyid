@@ -81,18 +81,57 @@ const handleVerifyOtp = async () => {
       alert("Email Verified");
     } else {
       setEmailVerified(false);
-      setOtpError("Wrong OTP");
+      setOtpError("Incorrect OTP");
       alert(data.message);
     }
-  } catch (err) {
-    alert("Verification failed");
-  }
+} catch (err) {
+  setOtpError("Verification failed. Please try again.");
+  alert("Verification failed");
+}
 
   setVerifyingOtp(false);
 };
 
   const handleGetVerified = async () => {
     try {
+
+if (!fullName.trim()) {
+  alert("Please enter your full name.");
+  return;
+}
+
+if (!email.trim()) {
+  alert("Please enter your email.");
+  return;
+}
+
+if (!emailVerified) {
+  alert("Please verify your email first.");
+  return;
+}
+
+if (!mobile.trim()) {
+  alert("Please enter your mobile number.");
+  return;
+}
+
+if (!selfie) {
+  alert("Please upload your selfie.");
+  return;
+}
+
+if (verificationType === "full") {
+  if (!documentType) {
+    alert("Please select a document type.");
+    return;
+  }
+
+  if (!document) {
+    alert("Please upload your document.");
+    return;
+  }
+}
+
       console.log({
         fullName,
         email,
@@ -208,79 +247,115 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
 
 <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{
-              flex: 1,
-              padding: "10px",
-            }}
-        />
-
+<input
+  type="email"
+  placeholder="Email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  disabled={emailVerified}
+  style={{
+    width: "100%",
+    padding: "10px",
+    marginBottom: "10px",
+  }}
+/>
 
 <button
   type="button"
   onClick={handleSendOtp}
   disabled={sendingOtp || emailVerified}
-  style={{
-    padding: "10px  16px",
-    minWidth: "100px",
-    whiteSpace: "nowrap",
-    cursor: "pointer",
-  }}
+style={{
+  padding: "6px 10px",
+  minWidth: "72px",
+  height: "52px",
+  border: "none",
+  borderRadius: "8px",
+  backgroundColor: "#2563eb",
+  color: "#fff",
+  cursor: "pointer",
+  fontWeight: "600",
+  fontSize: "14px",
+  lineHeight: "1.2",
+}}
+
 >
   {emailVerified
-    ? "✅ Email Verified"
-    : sendingOtp   ? "Sending..."
-    : "Send Email OTP"}
+    ? "Email Sent"
+    : sendingOtp
+    ? "Sending..."
+    : "Send OTP"}
 </button>
+
 </div>
 
-<div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-
-<input
-  type="text"
-  placeholder="Enter Email OTP"
-  value={emailOtp}
-  onChange={(e) => setEmailOtp(e.target.value)}
+<div
   style={{
-    flex: 1,
-    padding: "10px",
-  }}
-/>
-<button
-  type="button"
-  onClick={handleVerifyOtp}
-  disabled={emailVerified || verifyingOtp}
-  style={{
-    padding: "10px 16px",
-    minWidth: "90px",
-    whiteSpace: "nowrap",
-    cursor: "pointer",
+    display: "flex",
+    gap: "10px",
+    marginBottom: "10px",
+    alignItems: "center",
   }}
 >
-  {emailVerified
-    ? "Verified"
-    : verifyingOtp
-    ? "Checking..."
-    : "Verify"}
-</button>
+  <input
+    type="text"
+    placeholder="Enter Email OTP"
+    value={emailOtp}
+    onChange={(e) => setEmailOtp(e.target.value)}
+    disabled={emailVerified}
+    style={{
+      flex: 1,
+      padding: "10px",
+    }}
+  />
+
+  <button
+    type="button"
+    onClick={handleVerifyOtp}
+    disabled={emailVerified || verifyingOtp}
+    style={{
+      padding: "10px 16px",
+      border: "none",
+      borderRadius: "8px",
+      backgroundColor: "#16a34a",
+      color: "#fff",
+      cursor: "pointer",
+      fontWeight: "600",
+      whiteSpace: "nowrap",
+    }}
+  >
+    {emailVerified
+      ? "Verified"
+      : verifyingOtp
+      ? "Checking..."
+      : "Verify"}
+  </button>
 </div>
 
 {otpError && (
-  <p style={{ color: "red", marginBottom: "15px" }}>
-    ❌ {otpError}
-  </p>
+
+<p
+  style={{
+    color: "#dc2626",
+    background: "#fef2f2",
+    border: "1px solid #fecaca",
+    borderRadius: "8px",
+    padding: "10px 12px",
+    marginBottom: "15px",
+    fontSize: "14px",
+    fontWeight: "500",
+  }}
+>
+  ❌ {otpError}
+</p>
+
 )}
 
 {emailVerified && (
-  <p style={{ color: "green", marginBottom: "15px" }}>
+  <p style={{ color: "green", marginBottom: "15px", fontWeight: "bold" }}>
     ✅ Email Verified
   </p>
 )}
-          
+        
           <input
             type="text"
             placeholder="Mobile Number"

@@ -194,6 +194,8 @@ app.post("/api/send-email-otp", async (req, res) => {
       `,
     };
 
+otpStore[email] = otp;
+
 const result = await apiInstance.sendTransacEmail(emailData);
 console.log(result);
 
@@ -210,6 +212,33 @@ console.log(result);
       message: "Failed to send OTP",
     });
   }
+});
+
+let otpStore = {};
+
+app.post("/api/verify-email-otp", (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({
+      success: false,
+      message: "Email and OTP are required",
+    });
+  }
+
+  if (otpStore[email] === otp) {
+    delete otpStore[email];
+
+    return res.json({
+      success: true,
+      message: "Email verified successfully",
+    });
+  }
+
+  return res.json({
+    success: false,
+    message: "Incorrect OTP",
+  });
 });
 
 app.listen(3000, () => {
