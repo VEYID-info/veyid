@@ -148,20 +148,20 @@ if (verificationType === "full") {
 console.log({
   fullName,
   email,
+  dateOfBirth,
+  nationality,
   countryCode,
   mobile,
-  nationality,
-  dateOfBirth,
   verificationType,
 });
 
 alert(JSON.stringify({
   fullName,
   email,
+  dateOfBirth,
+  nationality,
   countryCode,
   mobile,
-  nationality,
-  dateOfBirth,
   verificationType,
 }));
 const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
@@ -172,10 +172,10 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
 body: JSON.stringify({
   fullName,
   email,
+  dateOfBirth,
+  nationality,
   countryCode,
   mobile,
-  nationality,
-  dateOfBirth,
   verificationType,
 }),
       });
@@ -378,16 +378,66 @@ style={{
   </p>
 )}
 
+<label
+  style={{
+    display: "block",
+    marginBottom: "8px",
+    fontWeight: "600",
+  }}
+>
+  Date of Birth
+</label>
+
 <input
-  type="date"
+  type="text"
+  placeholder="DD / MM / YYYY"
   value={dateOfBirth}
+  onFocus={(e) => (e.target.type = "date")}
+  onBlur={(e) => {
+    if (!e.target.value) e.target.type = "text";
+  }}
   onChange={(e) => setDateOfBirth(e.target.value)}
   style={{
     width: "100%",
     padding: "10px",
     marginBottom: "15px",
+    border: "1px solid #d1d5db",
+    borderRadius: "8px",
+    boxSizing: "border-box",
   }}
 />
+
+<label
+  style={{
+    display: "block",
+    marginBottom: "8px",
+    fontWeight: "600",
+  }}
+>
+  Nationality
+</label>
+
+<select
+  value={nationality}
+  onChange={(e) => setNationality(e.target.value)}
+  style={{
+    width: "100%",
+    padding: "10px",
+    marginBottom: "15px",
+  }}
+>
+
+<option>India</option>
+  <option>Nepal</option>
+  <option>Sri Lanka</option>
+  <option>Bangladesh</option>
+  <option>Pakistan</option>
+  <option>United States</option>
+  <option>United Kingdom</option>
+  <option>Australia</option>
+  <option>United Arab Emirates</option>
+</select>
+
         
 <div
   style={{
@@ -425,25 +475,6 @@ style={{
   />
 </div>
 
-<select
-  value={nationality}
-  onChange={(e) => setNationality(e.target.value)}
-  style={{
-    width: "100%",
-    padding: "10px",
-    marginBottom: "15px",
-  }}
->
-  <option>India</option>
-  <option>Nepal</option>
-  <option>Sri Lanka</option>
-  <option>Bangladesh</option>
-  <option>Pakistan</option>
-  <option>United States</option>
-  <option>United Kingdom</option>
-  <option>Australia</option>
-  <option>United Arab Emirates</option>
-</select>
 
           <label>Upload Selfie</label>
           <br />
