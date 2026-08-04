@@ -7,8 +7,11 @@ export default function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
-  const [emailOtp, setEmailOtp] = useState("");
+const [countryCode, setCountryCode] = useState("+91");
+const [nationality, setNationality] = useState("India");
+const [dateOfBirth, setDateOfBirth] = useState("");
 
+  const [emailOtp, setEmailOtp] = useState("");
 const [emailVerified, setEmailVerified] = useState(false);
 const [sendingOtp, setSendingOtp] = useState(false);
 
@@ -110,6 +113,16 @@ if (!emailVerified) {
   return;
 }
 
+if (!dateOfBirth) {
+  alert("Please select your date of birth.");
+  return;
+}
+
+if (!nationality) {
+  alert("Please select your nationality.");
+  return;
+}
+
 if (!mobile.trim()) {
   alert("Please enter your mobile number.");
   return;
@@ -132,17 +145,23 @@ if (verificationType === "full") {
   }
 }
 
-      console.log({
-        fullName,
-        email,
-        mobile,
-        verificationType,
-      });
+console.log({
+  fullName,
+  email,
+  countryCode,
+  mobile,
+  nationality,
+  dateOfBirth,
+  verificationType,
+});
 
 alert(JSON.stringify({
   fullName,
   email,
+  countryCode,
   mobile,
+  nationality,
+  dateOfBirth,
   verificationType,
 }));
 const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
@@ -150,12 +169,15 @@ const response = await fetch("http://127.0.0.1:3000/api/get-verified", {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          fullName,
-          email,
-          mobile,
-          verificationType,
-        }),
+body: JSON.stringify({
+  fullName,
+  email,
+  countryCode,
+  mobile,
+  nationality,
+  dateOfBirth,
+  verificationType,
+}),
       });
 
       const data = await response.json();
@@ -355,18 +377,73 @@ style={{
     ✅ Email Verified
   </p>
 )}
+
+<input
+  type="date"
+  value={dateOfBirth}
+  onChange={(e) => setDateOfBirth(e.target.value)}
+  style={{
+    width: "100%",
+    padding: "10px",
+    marginBottom: "15px",
+  }}
+/>
         
-          <input
-            type="text"
-            placeholder="Mobile Number"
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "15px",
-            }}
-          />
+<div
+  style={{
+    display: "flex",
+    gap: "10px",
+    marginBottom: "15px",
+  }}
+>
+  <select
+    value={countryCode}
+    onChange={(e) => setCountryCode(e.target.value)}
+    style={{
+      width: "110px",
+      padding: "10px",
+    }}
+  >
+    <option value="+91">🇮🇳 +91</option>
+    <option value="+1">🇺🇸 +1</option>
+    <option value="+44">🇬🇧 +44</option>
+    <option value="+61">🇦🇺 +61</option>
+    <option value="+971">🇦🇪 +971</option>
+    <option value="+94">🇱🇰 +94</option>
+    <option value="+977">🇳🇵 +977</option>
+  </select>
+
+  <input
+    type="text"
+    placeholder="Mobile Number"
+    value={mobile}
+    onChange={(e) => setMobile(e.target.value)}
+    style={{
+      flex: 1,
+      padding: "10px",
+    }}
+  />
+</div>
+
+<select
+  value={nationality}
+  onChange={(e) => setNationality(e.target.value)}
+  style={{
+    width: "100%",
+    padding: "10px",
+    marginBottom: "15px",
+  }}
+>
+  <option>India</option>
+  <option>Nepal</option>
+  <option>Sri Lanka</option>
+  <option>Bangladesh</option>
+  <option>Pakistan</option>
+  <option>United States</option>
+  <option>United Kingdom</option>
+  <option>Australia</option>
+  <option>United Arab Emirates</option>
+</select>
 
           <label>Upload Selfie</label>
           <br />
