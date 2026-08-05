@@ -49,7 +49,7 @@ setEmailVerified(false);
 alert(data.message);
  } catch (error) {
     console.error(error);
-    alert("Failed to send OTP");
+    alert(error.message);
   }
 
   setSendingOtp(false);
