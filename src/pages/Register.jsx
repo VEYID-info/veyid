@@ -63,7 +63,7 @@ const handleVerifyOtp = async () => {
 
   try {
     const response = await fetch(
-      ""https://veyid-api.info-veyid.workers.dev/verify-email-otp"",
+      "https://veyid-api.info-veyid.workers.dev/verify-email-otp",
       {
         method: "POST",
         headers: {
