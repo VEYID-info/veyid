@@ -41,6 +41,8 @@ const handleSendOtp = async () => {
 
 const data = await response.json();
 
+alert(JSON.stringify(data));
+
 setOtpError("");
 setEmailVerified(false);
 
