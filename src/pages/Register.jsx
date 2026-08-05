@@ -31,7 +31,7 @@ const handleSendOtp = async () => {
   setSendingOtp(true);
 
   try {
-    const response = await fetch("https://veyid-api.info-veyid.workers.dev", {
+    const response = await fetch("https://veyid-api.info-veyid.workers.dev/send-email-otp", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,7 +63,7 @@ const handleVerifyOtp = async () => {
 
   try {
     const response = await fetch(
-      "https://veyid-api.info-veyid.workers.dev",
+      ""https://veyid-api.info-veyid.workers.dev/verify-email-otp"",
       {
         method: "POST",
         headers: {
@@ -164,7 +164,7 @@ alert(JSON.stringify({
   mobile,
   verificationType,
 }));
-const response = await fetch("https://veyid-api.info-veyid.workers.dev", {
+const response = await fetch("https://veyid-api.info-veyid.workers.dev/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
