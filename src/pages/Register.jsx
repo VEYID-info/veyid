@@ -186,7 +186,7 @@ body: JSON.stringify({
       alert(data.message);
     } catch (error) {
       console.error(error);
-      alert("Server connection failed");
+      alert(error.message);
     }
   };
 
