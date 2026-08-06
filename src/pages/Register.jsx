@@ -183,7 +183,7 @@ body: JSON.stringify({
       });
 
       const data = await response.json();
-      alert(data.message);
+      alert(JSON.stringify(data));
     } catch (error) {
       console.error(error);
       alert(error.message);
