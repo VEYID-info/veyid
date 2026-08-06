@@ -172,13 +172,13 @@ const response = await fetch("https://veyid-api.info-veyid.workers.dev/register"
           "Content-Type": "application/json",
         },
 body: JSON.stringify({
-  fullName,
+  full_name: fullName,
   email,
-  dateOfBirth,
+  date_of_birth: dateOfBirth,
   nationality,
-  countryCode,
-  mobile,
-  verificationType,
+  country_code: countryCode,
+  phone: mobile,
+  verification_type: verificationType,
 }),
       });
 
