@@ -1,6 +1,17 @@
 
 import { useState } from "react";
 
+const spinStyle = `
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+`;
+
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -224,6 +235,10 @@ if (data.success) {
   };
 
   return (
+
+<>
+  <style>{spinStyle}</style>
+
     <div
       style={{
         maxWidth: "500px",
@@ -258,7 +273,8 @@ if (data.success) {
           borderTop: "4px solid #2563eb",
           borderRadius: "50%",
           margin: "0 auto 12px",
-        }}
+          animation: "spin 1s linear infinite",
+ }}
       />
       Loading...
     </div>
@@ -609,5 +625,6 @@ style={{
         </>
       )}
     </div>
-  );
+  </>
+);
 }
