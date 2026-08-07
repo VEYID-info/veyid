@@ -223,39 +223,6 @@ if (data.success) {
 }
   };
 
-if (submitting) {
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(255,255,255,0.85)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 9999,
-        fontSize: "20px",
-        fontWeight: "600",
-      }}
-    >
-      <div style={{ textAlign: "center" }}>
-        <div
-          style={{
-            width: "40px",
-            height: "40px",
-            border: "4px solid #ddd",
-            borderTop: "4px solid #2563eb",
-            borderRadius: "50%",
-            margin: "0 auto 15px",
-            animation: "spin 1s linear infinite",
-          }}
-        />
-        Loading...
-      </div>
-    </div>
-  );
-}
-
   return (
     <div
       style={{
@@ -266,6 +233,38 @@ if (submitting) {
         borderRadius: "12px",
       }}
     >
+
+{submitting && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(255,255,255,0.35)",
+      backdropFilter: "blur(3px)",
+      WebkitBackdropFilter: "blur(3px)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 9999,
+      pointerEvents: "all",
+    }}
+  >
+    <div style={{ textAlign: "center" }}>
+      <div
+        style={{
+          width: "42px",
+          height: "42px",
+          border: "4px solid #d1d5db",
+          borderTop: "4px solid #2563eb",
+          borderRadius: "50%",
+          margin: "0 auto 12px",
+        }}
+      />
+      Loading...
+    </div>
+  </div>
+)}
+
       {step === 1 && (
         <>
           <h1>Get Verified</h1>
