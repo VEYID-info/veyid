@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 
 
@@ -21,6 +22,8 @@ const [otpError, setOtpError] = useState("");
 const [selfie, setSelfie] = useState(null);
 const [document, setDocument] = useState(null);
 const [documentType, setDocumentType] = useState("");
+
+const [submitting, setSubmitting] = useState(false);
 
 const handleSendOtp = async () => {
   if (!email) {
@@ -99,6 +102,12 @@ const handleVerifyOtp = async () => {
 
   const handleGetVerified = async () => {
     try {
+
+if (submitting) {
+  return;
+}
+
+setSubmitting(true);
 
 if (!fullName.trim()) {
   alert("Please enter your full name.");
@@ -209,8 +218,43 @@ if (data.success) {
     } catch (error) {
       console.error(error);
       alert(error.message);
-    }
+} finally {
+  setSubmitting(false);
+}
   };
+
+if (submitting) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(255,255,255,0.85)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 9999,
+        fontSize: "20px",
+        fontWeight: "600",
+      }}
+    >
+      <div style={{ textAlign: "center" }}>
+        <div
+          style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid #ddd",
+            borderTop: "4px solid #2563eb",
+            borderRadius: "50%",
+            margin: "0 auto 15px",
+            animation: "spin 1s linear infinite",
+          }}
+        />
+        Loading...
+      </div>
+    </div>
+  );
+}
 
   return (
     <div
