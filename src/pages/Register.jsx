@@ -223,6 +223,25 @@ if (data.success) {
       body: formData,
     }
   );
+
+setFullName("");
+setEmail("");
+setMobile("");
+setCountryCode("+91");
+setNationality("India");
+setDateOfBirth("");
+
+setEmailOtp("");
+setEmailVerified(false);
+setOtpError("");
+
+setSelfie(null);
+setDocument(null);
+setDocumentType("");
+
+setVerificationType("");
+setStep(1);
+
 }
 
       alert(JSON.stringify(data));
