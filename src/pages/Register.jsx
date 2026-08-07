@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 const spinStyle = `
 @keyframes spin {
@@ -30,11 +30,17 @@ const [sendingOtp, setSendingOtp] = useState(false);
 const [verifyingOtp, setVerifyingOtp] = useState(false);
 const [otpError, setOtpError] = useState("");
 
+const [otpSuccess, setOtpSuccess] = useState("");
+
 const [selfie, setSelfie] = useState(null);
 const [document, setDocument] = useState(null);
 const [documentType, setDocumentType] = useState("");
 
+const selfieInputRef = useRef(null);
+const documentInputRef = useRef(null);
+
 const [submitting, setSubmitting] = useState(false);
+const [errors, setErrors] = useState({});
 
 const handleSendOtp = async () => {
   if (!email) {
@@ -55,16 +61,17 @@ const handleSendOtp = async () => {
 
 const data = await response.json();
 
-alert(JSON.stringify(data));
 
 setOtpError("");
 setEmailVerified(false);
+setOtpSuccess(data.message);
+} catch (error) {
+  console.error(error);
 
-alert(data.message);
- } catch (error) {
-    console.error(error);
-    alert(error.message);
-  }
+  setOtpSuccess("");
+  setEmailVerified(false);
+  setOtpError("Unable to send OTP. Please try again.");
+}
 
   setSendingOtp(false);
 };
@@ -97,15 +104,16 @@ const handleVerifyOtp = async () => {
     if (data.success) {
       setEmailVerified(true);
       setOtpError("");
-      alert("Email Verified");
-    } else {
+      setOtpSuccess("Email Verified");
+   } else {
       setEmailVerified(false);
-      setOtpError("Incorrect OTP");
-      alert(data.message);
-    }
+      setOtpSuccess("");
+      setOtpError(data.message);
+   }
+
 } catch (err) {
+  setOtpSuccess("");
   setOtpError("Verification failed. Please try again.");
-  alert("Verification failed");
 }
 
   setVerifyingOtp(false);
@@ -120,51 +128,51 @@ if (submitting) {
 
 setSubmitting(true);
 
+setErrors({});
+
+const newErrors = {};
+
 if (!fullName.trim()) {
-  alert("Please enter your full name.");
-  return;
+  newErrors.fullName = "Please enter your full name.";
 }
 
 if (!email.trim()) {
-  alert("Please enter your email.");
-  return;
+  newErrors.email = "Please enter your email.";
 }
 
 if (!emailVerified) {
-  alert("Please verify your email first.");
-  return;
+  newErrors.emailVerified = "Please verify your email first.";
 }
 
 if (!dateOfBirth) {
-  alert("Please select your date of birth.");
-  return;
+  newErrors.dateOfBirth = "Please select your date of birth.";
 }
 
 if (!nationality) {
-  alert("Please select your nationality.");
-  return;
+  newErrors.nationality = "Please select your nationality.";
 }
 
 if (!mobile.trim()) {
-  alert("Please enter your mobile number.");
-  return;
+  newErrors.mobile = "Please enter your mobile number.";
 }
 
 if (!selfie) {
-  alert("Please upload your selfie.");
-  return;
+  newErrors.selfie = "Please upload your selfie.";
 }
 
 if (verificationType === "full") {
-  if (!documentType) {
-    alert("Please select a document type.");
-    return;
-  }
+if (!documentType) {
+  newErrors.documentType = "Please select a document type.";
+}
+ 
+if (!document) {
+  newErrors.document = "Please upload your document.";
+}
 
-  if (!document) {
-    alert("Please upload your document.");
-    return;
-  }
+if (Object.keys(newErrors).length > 0) {
+  setErrors(newErrors);
+  setSubmitting(false);
+  return;
 }
 
 console.log({
@@ -208,6 +216,16 @@ body: JSON.stringify({
 
       console.log("Register Response:", data);
 
+if (!data.success) {
+  if (data.message === "Email already registered") {
+    alert("This email is already registered. Please log in or use a different email address.");
+    return;
+  }
+
+  alert(data.message);
+  return;
+}
+
 
 if (data.success) {
   const formData = new FormData();
@@ -239,15 +257,23 @@ setSelfie(null);
 setDocument(null);
 setDocumentType("");
 
+if (selfieInputRef.current) selfieInputRef.current.value = "";
+if (documentInputRef.current) documentInputRef.current.value = "";
+
+
 setVerificationType("");
 setStep(1);
 
+alert("Verification request submitted successfully.");
+
 }
 
-      alert(JSON.stringify(data));
-    } catch (error) {
-      console.error(error);
-      alert(error.message);
+} catch (error) {
+  console.error(error);
+
+  alert(
+    "Something went wrong. Please check your internet connection and try again."
+  );
 } finally {
   setSubmitting(false);
 }
@@ -357,17 +383,37 @@ setStep(1);
               : "Full KYC Verification"}
           </h1>
 
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "15px",
-            }}
-          />
+<input
+  type="text"
+  placeholder="Full Name"
+  value={fullName}
+  onChange={(e) => {
+    setFullName(e.target.value);
+
+    setErrors((prev) => ({
+      ...prev,
+      fullName: "",
+    }));
+  }}
+  style={{
+    width: "100%",
+    padding: "10px",
+    marginBottom: "15px",
+  }}
+/>
+
+{errors.fullName && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "-10px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.fullName}
+  </p>
+)}
 
 <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
 
@@ -375,7 +421,15 @@ setStep(1);
   type="email"
   placeholder="Email"
   value={email}
-  onChange={(e) => setEmail(e.target.value)}
+onChange={(e) => {
+  setEmail(e.target.value);
+
+  setErrors((prev) => ({
+    ...prev,
+    email: "",
+    emailVerified: "",
+  }));
+}}
   disabled={emailVerified}
   style={{
     width: "100%",
@@ -383,6 +437,32 @@ setStep(1);
     marginBottom: "10px",
   }}
 />
+
+{errors.email && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "-10px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.email}
+  </p>
+)}
+
+{errors.emailVerified && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "-10px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.emailVerified}
+  </p>
+)}
 
 <button
   type="button"
@@ -474,6 +554,23 @@ style={{
 
 )}
 
+{otpSuccess && (
+  <p
+    style={{
+      color: "#166534",
+      background: "#dcfce7",
+      border: "1px solid #86efac",
+      borderRadius: "8px",
+      padding: "10px 12px",
+      marginBottom: "15px",
+      fontSize: "14px",
+      fontWeight: "500",
+    }}
+  >
+    ✅ {otpSuccess}
+  </p>
+)}
+
 {emailVerified && (
   <p style={{ color: "green", marginBottom: "15px", fontWeight: "bold" }}>
     ✅ Email Verified
@@ -498,7 +595,14 @@ style={{
   onBlur={(e) => {
     if (!e.target.value) e.target.type = "text";
   }}
-  onChange={(e) => setDateOfBirth(e.target.value)}
+onChange={(e) => {
+  setDateOfBirth(e.target.value);
+
+  setErrors((prev) => ({
+    ...prev,
+    dateOfBirth: "",
+  }));
+}}
   style={{
     width: "100%",
     padding: "10px",
@@ -508,6 +612,19 @@ style={{
     boxSizing: "border-box",
   }}
 />
+
+{errors.dateOfBirth && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "-10px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.dateOfBirth}
+  </p>
+)}
 
 <label
   style={{
@@ -521,7 +638,14 @@ style={{
 
 <select
   value={nationality}
-  onChange={(e) => setNationality(e.target.value)}
+onChange={(e) => {
+  setNationality(e.target.value);
+
+  setErrors((prev) => ({
+    ...prev,
+    nationality: "",
+  }));
+}}
   style={{
     width: "100%",
     padding: "10px",
@@ -540,6 +664,19 @@ style={{
   <option>United Arab Emirates</option>
 </select>
 
+
+{errors.nationality && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "-10px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.nationality}
+  </p>
+)}
         
 <div
   style={{
@@ -569,7 +706,14 @@ style={{
     type="text"
     placeholder="Mobile Number"
     value={mobile}
-    onChange={(e) => setMobile(e.target.value)}
+onChange={(e) => {
+  setMobile(e.target.value);
+
+  setErrors((prev) => ({
+    ...prev,
+    mobile: "",
+  }));
+}}
     style={{
       flex: 1,
       padding: "10px",
@@ -577,23 +721,65 @@ style={{
   />
 </div>
 
+{errors.mobile && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "-10px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.mobile}
+  </p>
+)}
+
 
           <label>Upload Selfie</label>
           <br />
 
 <input
   type="file"
+  ref={selfieInputRef}  
   accept="image/*"
-  onChange={(e) => setSelfie(e.target.files[0])}
+onChange={(e) => {
+  setSelfie(e.target.files[0]);
+
+  setErrors((prev) => ({
+    ...prev,
+    selfie: "",
+  }));
+}}
   style={{
     marginBottom: "20px",
   }}
 />
-          {verificationType === "full" && (
+  
+{errors.selfie && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "-10px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.selfie}
+  </p>
+)}
+  
+      {verificationType === "full" && (
             <>
 <select
   value={documentType}
-  onChange={(e) => setDocumentType(e.target.value)}
+onChange={(e) => {
+  setDocumentType(e.target.value);
+
+  setErrors((prev) => ({
+    ...prev,
+    documentType: "",
+  }));
+}}
   style={{
     width: "100%",
     padding: "10px",
@@ -611,17 +797,54 @@ style={{
                 <option>Government ID Card</option>
               </select>
 
-              <label>Upload Document</label>
+{errors.documentType && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "-10px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.documentType}
+  </p>
+)}
+
+  
+            <label>Upload Document</label>
               <br />
 
 <input
   type="file"
+  ref={documentInputRef}  
   accept=".jpg,.jpeg,.png,.pdf"
-  onChange={(e) => setDocument(e.target.files[0])}
+onChange={(e) => {
+  setDocument(e.target.files[0]);
+
+  setErrors((prev) => ({
+    ...prev,
+    document: "",
+  }));
+}}
   style={{
     marginBottom: "20px",
   }}
 />
+
+{errors.document && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "-10px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.document}
+  </p>
+)}
+
+
             </>
           )}
 
