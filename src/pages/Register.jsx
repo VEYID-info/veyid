@@ -183,6 +183,23 @@ body: JSON.stringify({
       });
 
       const data = await response.json();
+
+if (data.success) {
+  const formData = new FormData();
+
+  formData.append("user_id", data.user.id);
+  formData.append("document_type", "selfie");
+  formData.append("file", selfie);
+
+  await fetch(
+    "https://veyid-api.info-veyid.workers.dev/upload-document",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+}
+
       alert(JSON.stringify(data));
     } catch (error) {
       console.error(error);
