@@ -184,6 +184,11 @@ body: JSON.stringify({
 
       const data = await response.json();
 
+      console.log("Register Status:", response.status);
+
+      console.log("Register Response:", data);
+
+
 if (data.success) {
   const formData = new FormData();
 
