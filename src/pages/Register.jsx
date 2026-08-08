@@ -472,6 +472,19 @@ alert("Verification request submitted successfully.");
     </button>
   </div>
 
+{errors.email && (
+  <p
+    style={{
+      color: "#dc2626",
+      fontSize: "14px",
+      marginTop: "8px",
+      marginBottom: "15px",
+    }}
+  >
+    {errors.email}
+  </p>
+)}
+
   {errors.emailVerified && (
     <p
       style={{
