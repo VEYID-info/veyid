@@ -169,6 +169,8 @@ if (!document) {
   newErrors.document = "Please upload your document.";
 }
 
+}
+
 if (Object.keys(newErrors).length > 0) {
   setErrors(newErrors);
   setSubmitting(false);
