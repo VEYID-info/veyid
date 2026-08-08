@@ -38,6 +38,7 @@ const [documentType, setDocumentType] = useState("");
 
 const videoRef = useRef(null);
 const canvasRef = useRef(null);
+const cameraStreamRef = useRef(null);
 
 const [cameraActive, setCameraActive] = useState(false);
 const [selfiePreview, setSelfiePreview] = useState(null);
@@ -55,15 +56,19 @@ const startCamera = async () => {
       audio: false,
     });
 
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
-      setCameraActive(true);
-    }
+    cameraStreamRef.current = stream;
+    setCameraActive(true);
   } catch (error) {
     console.error("Camera error:", error);
     alert("Camera permission is required to take a live selfie.");
   }
 };
+
+useEffect(() => {
+  if (cameraActive && videoRef.current && cameraStreamRef.current) {
+    videoRef.current.srcObject = cameraStreamRef.current;
+  }
+}, [cameraActive]);
 
 const captureSelfie = () => {
   const video = videoRef.current;
