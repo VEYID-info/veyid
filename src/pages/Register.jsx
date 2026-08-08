@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const spinStyle = `
 @keyframes spin {
@@ -36,11 +36,78 @@ const [selfie, setSelfie] = useState(null);
 const [document, setDocument] = useState(null);
 const [documentType, setDocumentType] = useState("");
 
-const selfieInputRef = useRef(null);
+const videoRef = useRef(null);
+const canvasRef = useRef(null);
+
+const [cameraActive, setCameraActive] = useState(false);
+const [selfiePreview, setSelfiePreview] = useState(null);
 const documentInputRef = useRef(null);
 
 const [submitting, setSubmitting] = useState(false);
 const [errors, setErrors] = useState({});
+
+const startCamera = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: "user",
+      },
+      audio: false,
+    });
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+      setCameraActive(true);
+    }
+  } catch (error) {
+    console.error("Camera error:", error);
+    alert("Camera permission is required to take a live selfie.");
+  }
+};
+
+const captureSelfie = () => {
+  const video = videoRef.current;
+  const canvas = canvasRef.current;
+
+  if (!video || !canvas) return;
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const context = canvas.getContext("2d");
+
+  context.drawImage(
+    video,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+
+    const file = new File(
+      [blob],
+      "live-selfie.jpg",
+      { type: "image/jpeg" }
+    );
+
+    setSelfie(file);
+    setSelfiePreview(URL.createObjectURL(blob));
+    setCameraActive(false);
+
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach((track) => track.stop());
+      video.srcObject = null;
+    }
+
+    setErrors((prev) => ({
+      ...prev,
+      selfie: "",
+    }));
+  }, "image/jpeg", 0.9);
+};
 
 const handleSendOtp = async () => {
   if (!email) {
@@ -743,38 +810,126 @@ onChange={(e) => {
 )}
 
 
-          <label>Upload Selfie</label>
-          <br />
+<div style={{ marginBottom: "20px" }}>
 
-<input
-  type="file"
-  ref={selfieInputRef}  
-  accept="image/*"
-onChange={(e) => {
-  setSelfie(e.target.files[0]);
-
-  setErrors((prev) => ({
-    ...prev,
-    selfie: "",
-  }));
-}}
-  style={{
-    marginBottom: "20px",
-  }}
-/>
-  
-{errors.selfie && (
-  <p
+  <label
     style={{
-      color: "#dc2626",
-      fontSize: "14px",
-      marginTop: "-10px",
-      marginBottom: "15px",
+      display: "block",
+      marginBottom: "8px",
+      fontWeight: "600",
     }}
   >
-    {errors.selfie}
-  </p>
-)}
+    Live Selfie
+  </label>
+
+  {!cameraActive && !selfiePreview && (
+    <button
+      type="button"
+      onClick={startCamera}
+      style={{
+        width: "100%",
+        padding: "12px",
+        border: "none",
+        borderRadius: "8px",
+        backgroundColor: "#2563eb",
+        color: "#fff",
+        cursor: "pointer",
+        fontWeight: "600",
+      }}
+    >
+      Open Camera
+    </button>
+  )}
+
+  {cameraActive && (
+    <div>
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        style={{
+          width: "100%",
+          borderRadius: "10px",
+          display: "block",
+          marginBottom: "10px",
+        }}
+      />
+
+      <button
+        type="button"
+        onClick={captureSelfie}
+        style={{
+          width: "100%",
+          padding: "12px",
+          border: "none",
+          borderRadius: "8px",
+          backgroundColor: "#06b6d4",
+          color: "#fff",
+          cursor: "pointer",
+          fontWeight: "600",
+        }}
+      >
+        Capture Selfie
+      </button>
+    </div>
+  )}
+
+  {selfiePreview && (
+    <div>
+      <img
+        src={selfiePreview}
+        alt="Selfie Preview"
+        style={{
+          width: "100%",
+          borderRadius: "10px",
+          display: "block",
+          marginBottom: "10px",
+        }}
+      />
+
+      <button
+        type="button"
+        onClick={() => {
+          setSelfie(null);
+          setSelfiePreview(null);
+          startCamera();
+        }}
+        style={{
+          width: "100%",
+          padding: "12px",
+          border: "none",
+          borderRadius: "8px",
+          backgroundColor: "#2563eb",
+          color: "#fff",
+          cursor: "pointer",
+          fontWeight: "600",
+        }}
+      >
+        Retake Selfie
+      </button>
+    </div>
+  )}
+
+  <canvas
+    ref={canvasRef}
+    style={{ display: "none" }}
+  />
+
+  {errors.selfie && (
+    <p
+      style={{
+        color: "#dc2626",
+        fontSize: "14px",
+        marginTop: "8px",
+        marginBottom: "15px",
+      }}
+    >
+      {errors.selfie}
+    </p>
+  )}
+
+</div>
   
       {verificationType === "full" && (
             <>
