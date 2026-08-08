@@ -138,9 +138,7 @@ if (!fullName.trim()) {
 
 if (!email.trim()) {
   newErrors.email = "Please enter your email.";
-}
-
-if (!emailVerified) {
+} else if (!emailVerified) {
   newErrors.emailVerified = "Please verify your email first.";
 }
 
@@ -417,80 +415,75 @@ alert("Verification request submitted successfully.");
   </p>
 )}
 
-<div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
 
-<input
-  type="email"
-  placeholder="Email"
-  value={email}
-onChange={(e) => {
-  setEmail(e.target.value);
+<div style={{ marginBottom: "15px" }}>
 
-  setErrors((prev) => ({
-    ...prev,
-    email: "",
-    emailVerified: "",
-  }));
-}}
-  disabled={emailVerified}
-  style={{
-    width: "100%",
-    padding: "10px",
-    marginBottom: "10px",
-  }}
-/>
-
-{errors.email && (
-  <p
+  <div
     style={{
-      color: "#dc2626",
-      fontSize: "14px",
-      marginTop: "-10px",
-      marginBottom: "15px",
+      display: "flex",
+      gap: "10px",
+      alignItems: "center",
     }}
   >
-    {errors.email}
-  </p>
-)}
+    <input
+      type="email"
+      placeholder="Email"
+      value={email}
+      onChange={(e) => {
+        setEmail(e.target.value);
 
-{errors.emailVerified && (
-  <p
-    style={{
-      color: "#dc2626",
-      fontSize: "14px",
-      marginTop: "-10px",
-      marginBottom: "15px",
-    }}
-  >
-    {errors.emailVerified}
-  </p>
-)}
+        setErrors((prev) => ({
+          ...prev,
+          emailVerified: "",
+        }));
+      }}
+      disabled={emailVerified}
+      style={{
+        flex: 1,
+        width: "100%",
+        padding: "10px",
+        marginBottom: "0",
+      }}
+    />
 
-<button
-  type="button"
-  onClick={handleSendOtp}
-  disabled={sendingOtp || emailVerified}
-style={{
-  padding: "6px 10px",
-  minWidth: "72px",
-  height: "52px",
-  border: "none",
-  borderRadius: "8px",
-  backgroundColor: "#2563eb",
-  color: "#fff",
-  cursor: "pointer",
-  fontWeight: "600",
-  fontSize: "14px",
-  lineHeight: "1.2",
-}}
+    <button
+      type="button"
+      onClick={handleSendOtp}
+      disabled={sendingOtp || emailVerified}
+      style={{
+        padding: "6px 10px",
+        minWidth: "72px",
+        height: "52px",
+        border: "none",
+        borderRadius: "8px",
+        backgroundColor: "#2563eb",
+        color: "#fff",
+        cursor: "pointer",
+        fontWeight: "600",
+        fontSize: "14px",
+        lineHeight: "1.2",
+      }}
+    >
+      {emailVerified
+        ? "Email Sent"
+        : sendingOtp
+        ? "Sending..."
+        : "Send OTP"}
+    </button>
+  </div>
 
->
-  {emailVerified
-    ? "Email Sent"
-    : sendingOtp
-    ? "Sending..."
-    : "Send OTP"}
-</button>
+  {errors.emailVerified && (
+    <p
+      style={{
+        color: "#dc2626",
+        fontSize: "14px",
+        marginTop: "8px",
+        marginBottom: "15px",
+      }}
+    >
+      {errors.emailVerified}
+    </p>
+  )}
 
 </div>
 
