@@ -290,6 +290,11 @@ body: JSON.stringify({
 
       console.log("Register Response:", data);
 
+alert(
+  "REGISTER RESPONSE:\n\n" +
+  JSON.stringify(data, null, 2)
+);
+
 if (!data.success) {
   if (data.message === "Email already registered") {
     alert("This email is already registered. Please log in or use a different email address.");
