@@ -313,8 +313,13 @@ if (!data.success) {
     return;
   }
 
-  alert(data.message);
-  return;
+alert(
+  data.message ||
+  data.error ||
+  "Registration failed. Please try again."
+);
+  
+return;
 }
 
 
