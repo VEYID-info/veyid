@@ -308,13 +308,29 @@ if (data.success) {
   formData.append("document_type", "selfie");
   formData.append("file", selfie);
 
-  await fetch(
+  const uploadResponse = await fetch(
     "https://veyid-api.info-veyid.workers.dev/upload-document",
     {
       method: "POST",
       body: formData,
     }
   );
+
+  const uploadData = await uploadResponse.json();
+
+  console.log("Upload Status:", uploadResponse.status);
+  console.log("Upload Response:", uploadData);
+
+  if (!uploadResponse.ok || !uploadData.success) {
+    alert(
+      uploadData.message ||
+      uploadData.error ||
+      "Selfie upload failed."
+    );
+    return;
+  }
+
+  console.log("B2 Upload Successful:", uploadData);
 
 setFullName("");
 setEmail("");
