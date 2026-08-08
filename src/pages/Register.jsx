@@ -228,6 +228,11 @@ if (!mobile.trim()) {
   newErrors.mobile = "Please enter your mobile number.";
 }
 
+console.log("SELFIE BEFORE SUBMIT:", selfie);
+console.log("SELFIE NAME:", selfie?.name);
+console.log("SELFIE TYPE:", selfie?.type);
+console.log("SELFIE SIZE:", selfie?.size);
+
 if (!selfie) {
   newErrors.selfie = "Please upload your selfie.";
 }
