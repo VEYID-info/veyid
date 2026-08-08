@@ -844,7 +844,7 @@ onChange={(e) => {
         fontWeight: "600",
       }}
     >
-      Open Camera
+Get Live Selfie
     </button>
   )}
 
