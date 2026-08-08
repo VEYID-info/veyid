@@ -321,6 +321,13 @@ if (data.success) {
   console.log("Upload Status:", uploadResponse.status);
   console.log("Upload Response:", uploadData);
 
+alert(
+  "Upload Status: " +
+  uploadResponse.status +
+  "\n\nUpload Response:\n" +
+  JSON.stringify(uploadData, null, 2)
+);
+
   if (!uploadResponse.ok || !uploadData.success) {
     alert(
       uploadData.message ||
