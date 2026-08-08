@@ -233,6 +233,13 @@ console.log("SELFIE NAME:", selfie?.name);
 console.log("SELFIE TYPE:", selfie?.type);
 console.log("SELFIE SIZE:", selfie?.size);
 
+alert(
+  "SELFIE DEBUG\n\n" +
+  "Name: " + (selfie?.name || "undefined") + "\n" +
+  "Type: " + (selfie?.type || "undefined") + "\n" +
+  "Size: " + (selfie?.size || "undefined")
+);
+
 if (!selfie) {
   newErrors.selfie = "Please upload your selfie.";
 }
