@@ -44,6 +44,7 @@ const [cameraActive, setCameraActive] = useState(false);
 const [selfiePreview, setSelfiePreview] = useState(null);
 const [selfieConfirmed, setSelfieConfirmed] = useState(false);
 const documentInputRef = useRef(null);
+const selfieInputRef = useRef(null);
 
 const [submitting, setSubmitting] = useState(false);
 const [errors, setErrors] = useState({});
