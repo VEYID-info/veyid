@@ -388,10 +388,11 @@ alert("Verification request submitted successfully.");
 }
 
 } catch (error) {
-  console.error(error);
+  console.error("REGISTER ERROR:", error);
 
   alert(
-    "Something went wrong. Please check your internet connection and try again."
+    "REGISTER ERROR:\n\n" +
+    (error?.message || String(error))
   );
 } finally {
   setSubmitting(false);
