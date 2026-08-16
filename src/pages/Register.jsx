@@ -362,6 +362,60 @@ alert(
 
   console.log("B2 Upload Successful:", uploadData);
 
+  
+  // Full KYC: upload selected document
+  if (verificationType === "full") {
+    const documentFormData = new FormData();
+
+    documentFormData.append("user_id", data.user.id);
+    documentFormData.append("document_type", documentType);
+    documentFormData.append("file", document);
+
+    const documentUploadResponse = await fetch(
+      "https://veyid-api.info-veyid.workers.dev/upload-document",
+      {
+        method: "POST",
+        body: documentFormData,
+      }
+    );
+
+    const documentUploadData = await documentUploadResponse.json();
+
+    console.log(
+      "Document Upload Status:",
+      documentUploadResponse.status
+    );
+
+    console.log(
+      "Document Upload Response:",
+      documentUploadData
+    );
+
+    alert(
+      "Document Upload Status: " +
+      documentUploadResponse.status +
+      "\n\nDocument Upload Response:\n" +
+      JSON.stringify(documentUploadData, null, 2)
+    );
+
+    if (
+      !documentUploadResponse.ok ||
+      !documentUploadData.success
+    ) {
+      alert(
+        documentUploadData.message ||
+        documentUploadData.error ||
+        "Document upload failed."
+      );
+      return;
+    }
+
+    console.log(
+      "B2 Document Upload Successful:",
+      documentUploadData
+    );
+  }
+
 setFullName("");
 setEmail("");
 setMobile("");
