@@ -4,12 +4,14 @@ import { setAdminToken } from "../utils/adminAuth";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
+  const [step, setStep] = useState("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -26,9 +28,8 @@ export default function AdminLogin() {
 
       const data = await response.json();
 
-      if (data.success && data.token) {
-        setAdminToken(data.token);
-        navigate("/admin");
+      if (data.success) {
+        setStep("otp");
       } else {
         setError(data.error || "Login failed");
       }
@@ -38,6 +39,59 @@ export default function AdminLogin() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://veyid-api.info-veyid.workers.dev/admin/verify-otp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success && data.token) {
+        setAdminToken(data.token);
+        navigate("/admin");
+      } else {
+        setError(data.error || "Invalid OTP");
+      }
+    } catch (err) {
+      console.error("OTP verify error:", err);
+      setError("Unable to verify OTP. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "12px",
+    marginBottom: "14px",
+    borderRadius: "8px",
+    border: "1px solid #333",
+    background: "#0d0d0d",
+    color: "#fff",
+    boxSizing: "border-box",
+  };
+
+  const buttonStyle = {
+    width: "100%",
+    padding: "12px",
+    borderRadius: "8px",
+    border: "none",
+    background: "#4f8cff",
+    color: "#fff",
+    fontWeight: "bold",
+    cursor: "pointer",
   };
 
   return (
@@ -53,7 +107,7 @@ export default function AdminLogin() {
       }}
     >
       <form
-        onSubmit={handleSubmit}
+        onSubmit={step === "password" ? handlePasswordSubmit : handleOtpSubmit}
         style={{
           background: "#151515",
           padding: "40px",
@@ -63,44 +117,45 @@ export default function AdminLogin() {
         }}
       >
         <h2 style={{ marginBottom: "24px", textAlign: "center" }}>
-          Admin Login
+          {step === "password" ? "Admin Login" : "Enter OTP"}
         </h2>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginBottom: "14px",
-            borderRadius: "8px",
-            border: "1px solid #333",
-            background: "#0d0d0d",
-            color: "#fff",
-            boxSizing: "border-box",
-          }}
-        />
+        {step === "password" && (
+          <>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              style={inputStyle}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={inputStyle}
+            />
+          </>
+        )}
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginBottom: "14px",
-            borderRadius: "8px",
-            border: "1px solid #333",
-            background: "#0d0d0d",
-            color: "#fff",
-            boxSizing: "border-box",
-          }}
-        />
+        {step === "otp" && (
+          <>
+            <p style={{ marginBottom: "14px", fontSize: "14px", color: "#aaa" }}>
+              A 6-digit code was sent to {email}
+            </p>
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              required
+              style={inputStyle}
+            />
+          </>
+        )}
 
         {error && (
           <p style={{ color: "#ff5c5c", marginBottom: "14px", fontSize: "14px" }}>
@@ -108,21 +163,12 @@ export default function AdminLogin() {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: "100%",
-            padding: "12px",
-            borderRadius: "8px",
-            border: "none",
-            background: "#4f8cff",
-            color: "#fff",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
-        >
-          {loading ? "Logging in..." : "Log In"}
+        <button type="submit" disabled={loading} style={buttonStyle}>
+          {loading
+            ? "Please wait..."
+            : step === "password"
+            ? "Continue"
+            : "Verify & Login"}
         </button>
       </form>
     </div>
