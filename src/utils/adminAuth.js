@@ -12,6 +12,14 @@ export function clearAdminToken() {
   adminToken = null;
 }
 
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      clearAdminToken();
+    }
+  });
+}
+
 export async function adminFetch(url, options = {}) {
   const token = getAdminToken();
 
