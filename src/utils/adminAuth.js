@@ -16,6 +16,11 @@ if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       clearAdminToken();
+    } else {
+      const path = window.location.pathname;
+      if (!getAdminToken() && path.startsWith("/admin") && path !== "/admin/login") {
+        window.location.href = "/admin/login";
+      }
     }
   });
 }
