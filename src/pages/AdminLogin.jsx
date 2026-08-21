@@ -72,6 +72,13 @@ export default function AdminLogin() {
     }
   };
 
+  const maskEmail = (value) => {
+    const [user, domain] = value.split("@");
+    if (!user || !domain) return value;
+    const visible = user.slice(0, 1);
+    return `${visible}${"*".repeat(Math.max(user.length - 1, 3))}@${domain}`;
+  };
+
   const inputStyle = {
     width: "100%",
     padding: "12px",
@@ -144,7 +151,7 @@ export default function AdminLogin() {
         {step === "otp" && (
           <>
             <p style={{ marginBottom: "14px", fontSize: "14px", color: "#aaa" }}>
-              A 6-digit code was sent to {email}
+              A 6-digit code was sent to {maskEmail(email)}
             </p>
             <input
               type="text"

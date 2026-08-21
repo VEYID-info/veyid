@@ -2,6 +2,33 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { adminFetch, getAdminToken } from "../utils/adminAuth";
 
+async function openOrDownloadDocument(fileName, download) {
+  const response = await adminFetch(
+    `https://veyid-api.info-veyid.workers.dev/admin/document?file=${encodeURIComponent(fileName)}`
+  );
+
+  if (!response.ok) {
+    alert("Unable to load document.");
+    return;
+  }
+
+  const blob = await response.blob();
+  const blobUrl = URL.createObjectURL(blob);
+
+  if (download) {
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } else {
+    window.open(blobUrl, "_blank");
+  }
+
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+}
+
 export default function AdminUser() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -936,11 +963,7 @@ export default function AdminUser() {
                       <button
                         type="button"
                         className="veyid-secondary-button"
-                        onClick={() => {
-                          alert(
-                            "Document viewer will be connected to secure storage next."
-                          );
-                        }}
+                        onClick={() => openOrDownloadDocument(document.file_name, false)}
                       >
                         View
                       </button>
@@ -948,11 +971,7 @@ export default function AdminUser() {
                       <button
                         type="button"
                         className="veyid-secondary-button"
-                        onClick={() => {
-                          alert(
-                            "Secure document download will be connected next."
-                          );
-                        }}
+                        onClick={() => openOrDownloadDocument(document.file_name, true)}
                       >
                         Download
                       </button>
@@ -960,10 +979,37 @@ export default function AdminUser() {
                       <button
                         type="button"
                         className="veyid-danger-button"
-                        onClick={() => {
-                          alert(
-                            "Delete confirmation will be connected to secure storage next."
+                        onClick={async () => {
+                          const confirmed = window.confirm(
+                            `Delete "${document.original_name || document.file_name}"? This cannot be undone.`
                           );
+                          if (!confirmed) return;
+
+                          try {
+                            const response = await adminFetch(
+                              "https://veyid-api.info-veyid.workers.dev/admin/document/delete",
+                              {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ fileName: document.file_name }),
+                              }
+                            );
+                            const data = await response.json();
+
+                            if (data.success) {
+                              setUserDetails((prev) => ({
+                                ...prev,
+                                documents: prev.documents.filter(
+                                  (d) => d.file_name !== document.file_name
+                                ),
+                              }));
+                            } else {
+                              alert(data.error || "Failed to delete document.");
+                            }
+                          } catch (err) {
+                            console.error("Delete document error:", err);
+                            alert("Unable to delete document.");
+                          }
                         }}
                       >
                         Delete
