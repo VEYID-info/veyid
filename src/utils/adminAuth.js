@@ -1,4 +1,7 @@
 let adminToken = null;
+let hiddenAt = null;
+
+const TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 export function getAdminToken() {
   return adminToken;
@@ -15,12 +18,16 @@ export function clearAdminToken() {
 if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
-      clearAdminToken();
+      hiddenAt = Date.now();
     } else {
-      const path = window.location.pathname;
-      if (!getAdminToken() && path.startsWith("/admin") && path !== "/admin/login") {
-        window.location.href = "/admin/login";
+      if (hiddenAt && Date.now() - hiddenAt > TIMEOUT_MS) {
+        clearAdminToken();
+        const path = window.location.pathname;
+        if (path.startsWith("/admin") && path !== "/admin/login") {
+          window.location.href = "/admin/login";
+        }
       }
+      hiddenAt = null;
     }
   });
 }
