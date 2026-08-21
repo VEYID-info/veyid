@@ -1,16 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { adminFetch, getAdminToken } from "../utils/adminAuth";
 
 export default function Admin() {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("pending");
-
-  useEffect(() => {
-    if (!getAdminToken()) {
-      navigate("/admin/login");
-    }
-  }, []);
 
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -22,16 +13,16 @@ export default function Admin() {
   });
 
   const [statsLoading, setStatsLoading] = useState(true);
-  const [listUsers, setListUsers] = useState([]);
-  const [listLoading, setListLoading] = useState(false);
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [userDetails, setUserDetails] = useState(null);
   const [userDetailsLoading, setUserDetailsLoading] = useState(false);
   const [documentViewMode, setDocumentViewMode] = useState("vertical");
-  const [listError, setListError] = useState("");
+  const [pendingError, setPendingError] = useState("");
 
   useEffect(() => {
-    adminFetch("https://veyid-api.info-veyid.workers.dev/admin/stats")
+    fetch("https://veyid-api.info-veyid.workers.dev/admin/stats")
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.stats) {
@@ -47,31 +38,26 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (!["pending", "approved", "rejected"].includes(activeTab)) return;
+    if (activeTab !== "pending") return;
 
-    setListLoading(true);
-    setListError("");
+    setPendingLoading(true);
+    setPendingError("");
 
-    const endpoint =
-      activeTab === "pending"
-        ? "https://veyid-api.info-veyid.workers.dev/admin/pending-users"
-        : `https://veyid-api.info-veyid.workers.dev/admin/users?status=${activeTab}`;
-
-    adminFetch(endpoint)
+    fetch("https://veyid-api.info-veyid.workers.dev/admin/pending-users")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setListUsers(data.users || []);
+          setPendingUsers(data.users || []);
         } else {
-          setListError(data.error || "Failed to load users.");
+          setPendingError(data.error || "Failed to load pending users.");
         }
       })
       .catch((err) => {
-        console.error("Users list error:", err);
-        setListError("Unable to load users.");
+        console.error("Pending users error:", err);
+        setPendingError("Unable to load pending users.");
       })
       .finally(() => {
-        setListLoading(false);
+        setPendingLoading(false);
       });
   }, [activeTab]);
 
@@ -148,33 +134,13 @@ export default function Admin() {
       </div>
 
       {/* Stats */}
-      <style>{`
-        .veyid-stats-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 12px;
-        }
-
-        @media (min-width: 640px) {
-          .veyid-stats-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-          }
-        }
-
-        @media (min-width: 1024px) {
-          .veyid-stats-grid {
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-          }
-        }
-      `}</style>
-
       <div
-        className="veyid-stats-grid"
         style={{
           maxWidth: "1400px",
           margin: "0 auto 30px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+          gap: "16px",
         }}
       >
         {statsCards.map((stat) => (
@@ -184,26 +150,24 @@ export default function Admin() {
               background: "#111",
               border: "1px solid #242424",
               borderRadius: "14px",
-              padding: "16px",
-              minWidth: 0,
-              boxSizing: "border-box",
+              padding: "20px",
             }}
           >
-            <div style={{ fontSize: "20px", marginBottom: "8px" }}>
+            <div style={{ fontSize: "24px", marginBottom: "12px" }}>
               {stat.icon}
             </div>
 
             <div
               style={{
-                fontSize: "22px",
+                fontSize: "28px",
                 fontWeight: "800",
-                marginBottom: "4px",
+                marginBottom: "5px",
               }}
             >
               {stat.value}
             </div>
 
-            <div style={{ color: "#888", fontSize: "12px" }}>
+            <div style={{ color: "#888", fontSize: "13px" }}>
               {stat.label}
             </div>
           </div>
@@ -260,7 +224,7 @@ export default function Admin() {
 
         {/* Content */}
         <div style={{ padding: "28px" }}>
-          {["pending", "approved", "rejected"].includes(activeTab) ? (
+          {activeTab === "pending" ? (
             <>
               <div
                 style={{
@@ -273,9 +237,9 @@ export default function Admin() {
                 }}
               >
                 <div>
-                  <h2 style={{ margin: 0 }}>{activeTab === "pending" ? "Pending Verification" : activeTab === "approved" ? "Approved Users" : "Rejected Users"}</h2>
+                  <h2 style={{ margin: 0 }}>Pending Verification</h2>
                   <p style={{ color: "#777", margin: "6px 0 0" }}>
-                    {activeTab === "pending" ? "Users waiting for identity verification review" : activeTab === "approved" ? "Users who have been approved" : "Users who have been rejected"}
+                    Users waiting for identity verification review
                   </p>
                 </div>
 
@@ -288,11 +252,11 @@ export default function Admin() {
                     fontSize: "13px",
                   }}
                 >
-                  {listUsers.length} {activeTab}
+                  {pendingUsers.length} pending
                 </div>
               </div>
 
-              {listLoading ? (
+              {pendingLoading ? (
                 <div
                   style={{
                     padding: "50px 20px",
@@ -302,7 +266,7 @@ export default function Admin() {
                 >
                   Loading pending users...
                 </div>
-              ) : listError ? (
+              ) : pendingError ? (
                 <div
                   style={{
                     padding: "30px",
@@ -311,9 +275,9 @@ export default function Admin() {
                     color: "#f87171",
                   }}
                 >
-                  {listError}
+                  {pendingError}
                 </div>
-              ) : listUsers.length === 0 ? (
+              ) : pendingUsers.length === 0 ? (
                 <div
                   style={{
                     border: "1px dashed #333",
@@ -327,11 +291,11 @@ export default function Admin() {
                   </div>
 
                   <h2 style={{ margin: "0 0 8px" }}>
-                    {activeTab === "pending" ? "No Pending Users" : activeTab === "approved" ? "No Approved Users" : "No Rejected Users"}
+                    No Pending Users
                   </h2>
 
                   <p style={{ color: "#777", margin: 0 }}>
-                    {activeTab === "pending" ? "There are no users waiting for verification." : activeTab === "approved" ? "There are no approved users yet." : "There are no rejected users yet."}
+                    There are no users waiting for verification.
                   </p>
                 </div>
               ) : (
@@ -341,7 +305,7 @@ export default function Admin() {
                     gap: "12px",
                   }}
                 >
-                  {listUsers.map((user) => (
+                  {pendingUsers.map((user) => (
                     <div
                       key={user.id}
                       style={{
@@ -427,7 +391,38 @@ export default function Admin() {
                       </div>
 
                       <button
-                        onClick={() => navigate(`/admin/user/${user.id}`)}
+                        onClick={async () => {
+                          setSelectedUser(user);
+                          setUserDetails(null);
+                          setUserDetailsLoading(true);
+
+                          try {
+                            const response = await fetch(
+                              `https://veyid-api.info-veyid.workers.dev/admin/user/${user.id}`
+                            );
+
+                            const data = await response.json();
+
+                            if (data.success && data.user) {
+                              setUserDetails(data);
+                            } else {
+                              alert(
+                                data.error ||
+                                "Failed to load user details."
+                              );
+                            }
+                          } catch (err) {
+                            console.error(
+                              "User details error:",
+                              err
+                            );
+                            alert(
+                              "Failed to load user details."
+                            );
+                          } finally {
+                            setUserDetailsLoading(false);
+                          }
+                        }}
                         style={{
                           padding: "10px 15px",
                           border: "none",

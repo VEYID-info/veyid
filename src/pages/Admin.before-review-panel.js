@@ -1,16 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { adminFetch, getAdminToken } from "../utils/adminAuth";
 
 export default function Admin() {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("pending");
-
-  useEffect(() => {
-    if (!getAdminToken()) {
-      navigate("/admin/login");
-    }
-  }, []);
 
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -22,16 +13,12 @@ export default function Admin() {
   });
 
   const [statsLoading, setStatsLoading] = useState(true);
-  const [listUsers, setListUsers] = useState([]);
-  const [listLoading, setListLoading] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [userDetails, setUserDetails] = useState(null);
-  const [userDetailsLoading, setUserDetailsLoading] = useState(false);
-  const [documentViewMode, setDocumentViewMode] = useState("vertical");
-  const [listError, setListError] = useState("");
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [pendingError, setPendingError] = useState("");
 
   useEffect(() => {
-    adminFetch("https://veyid-api.info-veyid.workers.dev/admin/stats")
+    fetch("https://veyid-api.info-veyid.workers.dev/admin/stats")
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.stats) {
@@ -47,31 +34,26 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (!["pending", "approved", "rejected"].includes(activeTab)) return;
+    if (activeTab !== "pending") return;
 
-    setListLoading(true);
-    setListError("");
+    setPendingLoading(true);
+    setPendingError("");
 
-    const endpoint =
-      activeTab === "pending"
-        ? "https://veyid-api.info-veyid.workers.dev/admin/pending-users"
-        : `https://veyid-api.info-veyid.workers.dev/admin/users?status=${activeTab}`;
-
-    adminFetch(endpoint)
+    fetch("https://veyid-api.info-veyid.workers.dev/admin/pending-users")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setListUsers(data.users || []);
+          setPendingUsers(data.users || []);
         } else {
-          setListError(data.error || "Failed to load users.");
+          setPendingError(data.error || "Failed to load pending users.");
         }
       })
       .catch((err) => {
-        console.error("Users list error:", err);
-        setListError("Unable to load users.");
+        console.error("Pending users error:", err);
+        setPendingError("Unable to load pending users.");
       })
       .finally(() => {
-        setListLoading(false);
+        setPendingLoading(false);
       });
   }, [activeTab]);
 
@@ -148,33 +130,13 @@ export default function Admin() {
       </div>
 
       {/* Stats */}
-      <style>{`
-        .veyid-stats-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 12px;
-        }
-
-        @media (min-width: 640px) {
-          .veyid-stats-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-          }
-        }
-
-        @media (min-width: 1024px) {
-          .veyid-stats-grid {
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-          }
-        }
-      `}</style>
-
       <div
-        className="veyid-stats-grid"
         style={{
           maxWidth: "1400px",
           margin: "0 auto 30px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+          gap: "16px",
         }}
       >
         {statsCards.map((stat) => (
@@ -184,26 +146,24 @@ export default function Admin() {
               background: "#111",
               border: "1px solid #242424",
               borderRadius: "14px",
-              padding: "16px",
-              minWidth: 0,
-              boxSizing: "border-box",
+              padding: "20px",
             }}
           >
-            <div style={{ fontSize: "20px", marginBottom: "8px" }}>
+            <div style={{ fontSize: "24px", marginBottom: "12px" }}>
               {stat.icon}
             </div>
 
             <div
               style={{
-                fontSize: "22px",
+                fontSize: "28px",
                 fontWeight: "800",
-                marginBottom: "4px",
+                marginBottom: "5px",
               }}
             >
               {stat.value}
             </div>
 
-            <div style={{ color: "#888", fontSize: "12px" }}>
+            <div style={{ color: "#888", fontSize: "13px" }}>
               {stat.label}
             </div>
           </div>
@@ -260,7 +220,7 @@ export default function Admin() {
 
         {/* Content */}
         <div style={{ padding: "28px" }}>
-          {["pending", "approved", "rejected"].includes(activeTab) ? (
+          {activeTab === "pending" ? (
             <>
               <div
                 style={{
@@ -273,9 +233,9 @@ export default function Admin() {
                 }}
               >
                 <div>
-                  <h2 style={{ margin: 0 }}>{activeTab === "pending" ? "Pending Verification" : activeTab === "approved" ? "Approved Users" : "Rejected Users"}</h2>
+                  <h2 style={{ margin: 0 }}>Pending Verification</h2>
                   <p style={{ color: "#777", margin: "6px 0 0" }}>
-                    {activeTab === "pending" ? "Users waiting for identity verification review" : activeTab === "approved" ? "Users who have been approved" : "Users who have been rejected"}
+                    Users waiting for identity verification review
                   </p>
                 </div>
 
@@ -288,11 +248,11 @@ export default function Admin() {
                     fontSize: "13px",
                   }}
                 >
-                  {listUsers.length} {activeTab}
+                  {pendingUsers.length} pending
                 </div>
               </div>
 
-              {listLoading ? (
+              {pendingLoading ? (
                 <div
                   style={{
                     padding: "50px 20px",
@@ -302,7 +262,7 @@ export default function Admin() {
                 >
                   Loading pending users...
                 </div>
-              ) : listError ? (
+              ) : pendingError ? (
                 <div
                   style={{
                     padding: "30px",
@@ -311,9 +271,9 @@ export default function Admin() {
                     color: "#f87171",
                   }}
                 >
-                  {listError}
+                  {pendingError}
                 </div>
-              ) : listUsers.length === 0 ? (
+              ) : pendingUsers.length === 0 ? (
                 <div
                   style={{
                     border: "1px dashed #333",
@@ -327,11 +287,11 @@ export default function Admin() {
                   </div>
 
                   <h2 style={{ margin: "0 0 8px" }}>
-                    {activeTab === "pending" ? "No Pending Users" : activeTab === "approved" ? "No Approved Users" : "No Rejected Users"}
+                    No Pending Users
                   </h2>
 
                   <p style={{ color: "#777", margin: 0 }}>
-                    {activeTab === "pending" ? "There are no users waiting for verification." : activeTab === "approved" ? "There are no approved users yet." : "There are no rejected users yet."}
+                    There are no users waiting for verification.
                   </p>
                 </div>
               ) : (
@@ -341,7 +301,7 @@ export default function Admin() {
                     gap: "12px",
                   }}
                 >
-                  {listUsers.map((user) => (
+                  {pendingUsers.map((user) => (
                     <div
                       key={user.id}
                       style={{
@@ -427,7 +387,12 @@ export default function Admin() {
                       </div>
 
                       <button
-                        onClick={() => navigate(`/admin/user/${user.id}`)}
+                        onClick={() =>
+                          alert(
+                            "User Details coming next for " +
+                              user.full_name
+                          )
+                        }
                         style={{
                           padding: "10px 15px",
                           border: "none",
@@ -474,233 +439,7 @@ export default function Admin() {
               </p>
             </div>
           )}
-
         </div>
-
-        {selectedUser && (
-          <div
-            style={{
-              maxWidth: "1400px",
-              margin: "20px auto 0",
-              background: "#111",
-              border: "1px solid #292929",
-              borderRadius: "16px",
-              padding: "24px",
-              boxSizing: "border-box",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "15px",
-                flexWrap: "wrap",
-                marginBottom: "20px",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    color: "#ef4444",
-                    fontSize: "12px",
-                    fontWeight: "800",
-                    letterSpacing: "1.5px",
-                  }}
-                >
-                  USER REVIEW
-                </div>
-
-                <h2 style={{ margin: "5px 0" }}>
-                  {selectedUser.full_name}
-                </h2>
-
-                <div style={{ color: "#777", fontSize: "13px" }}>
-                  User ID: {selectedUser.id}
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setSelectedUser(null);
-                  setUserDetails(null);
-                }}
-                style={{
-                  padding: "9px 14px",
-                  border: "1px solid #333",
-                  borderRadius: "8px",
-                  background: "#0d0d0d",
-                  color: "#aaa",
-                  cursor: "pointer",
-                  fontWeight: "700",
-                }}
-              >
-                Close
-              </button>
-            </div>
-
-            {userDetailsLoading ? (
-              <div
-                style={{
-                  padding: "50px 20px",
-                  textAlign: "center",
-                  color: "#888",
-                }}
-              >
-                Loading user details...
-              </div>
-            ) : userDetails?.user ? (
-              <>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "repeat(auto-fit, minmax(220px, 1fr))",
-                    gap: "12px",
-                    marginBottom: "25px",
-                  }}
-                >
-                  {[
-                    ["Full Name", userDetails.user.full_name],
-                    ["Email", userDetails.user.email],
-                    ["Phone", userDetails.user.phone],
-                    ["Country Code", userDetails.user.country_code],
-                    ["Nationality", userDetails.user.nationality],
-                    ["Date of Birth", userDetails.user.date_of_birth],
-                    ["VEYID", userDetails.user.veyid],
-                    [
-                      "Temporary Reference",
-                      userDetails.user.temporary_ref,
-                    ],
-                    ["KYC Type", userDetails.user.kyc_type],
-                    ["Badge", userDetails.user.badge_type],
-                    ["Trust Score", userDetails.user.trust_score],
-                    [
-                      "Verification Status",
-                      userDetails.user.verification_status,
-                    ],
-                    ["Created At", userDetails.user.created_at],
-                  ].map(([label, value]) => (
-                    <div
-                      key={label}
-                      style={{
-                        background: "#0d0d0d",
-                        border: "1px solid #292929",
-                        borderRadius: "10px",
-                        padding: "14px",
-                        minWidth: 0,
-                      }}
-                    >
-                      <div
-                        style={{
-                          color: "#777",
-                          fontSize: "11px",
-                          textTransform: "uppercase",
-                          letterSpacing: "1px",
-                          marginBottom: "6px",
-                        }}
-                      >
-                        {label}
-                      </div>
-
-                      <div
-                        style={{
-                          color: "#eee",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          overflowWrap: "anywhere",
-                        }}
-                      >
-                        {value || "—"}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div
-                  style={{
-                    borderTop: "1px solid #242424",
-                    paddingTop: "22px",
-                  }}
-                >
-                  <h3 style={{ margin: "0 0 15px" }}>
-                    Documents
-                  </h3>
-
-                  {userDetails.documents?.length ? (
-                    <div
-                      style={{
-                        display: "grid",
-                        gap: "10px",
-                      }}
-                    >
-                      {userDetails.documents.map((doc) => (
-                        <div
-                          key={doc.id}
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            gap: "15px",
-                            flexWrap: "wrap",
-                            background: "#0d0d0d",
-                            border: "1px solid #292929",
-                            borderRadius: "10px",
-                            padding: "14px",
-                          }}
-                        >
-                          <div>
-                            <div
-                              style={{
-                                fontWeight: "800",
-                                marginBottom: "4px",
-                              }}
-                            >
-                              {doc.document_type}
-                            </div>
-
-                            <div
-                              style={{
-                                color: "#777",
-                                fontSize: "12px",
-                                overflowWrap: "anywhere",
-                              }}
-                            >
-                              {doc.file_name}
-                            </div>
-                          </div>
-
-                          <div
-                            style={{
-                              color: "#666",
-                              fontSize: "12px",
-                            }}
-                          >
-                            {doc.uploaded_at || "—"}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={{ color: "#777" }}>
-                      No documents found.
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div
-                style={{
-                  padding: "30px",
-                  textAlign: "center",
-                  color: "#777",
-                }}
-              >
-                User details could not be loaded.
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
