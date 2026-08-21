@@ -1,13 +1,13 @@
 export function getAdminToken() {
-  return localStorage.getItem("veyid_admin_token");
+  return sessionStorage.getItem("veyid_admin_token");
 }
 
 export function setAdminToken(token) {
-  localStorage.setItem("veyid_admin_token", token);
+  sessionStorage.setItem("veyid_admin_token", token);
 }
 
 export function clearAdminToken() {
-  localStorage.removeItem("veyid_admin_token");
+  sessionStorage.removeItem("veyid_admin_token");
 }
 
 export async function adminFetch(url, options = {}) {
