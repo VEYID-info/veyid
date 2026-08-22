@@ -3,34 +3,38 @@ import { useNavigate } from "react-router-dom";
 
 function getTier(kycType) {
   if (kycType === "full") {
-    return {
-      label: "Gold Verified",
-      chipBg: "linear-gradient(135deg, #f5c453, #d99a1b)",
-      chipColor: "#5a3d00",
-    };
+    return { badge: "🥇" };
   }
   if (kycType === "basic") {
-    return {
-      label: "Bronze Verified",
-      chipBg: "linear-gradient(135deg, #d7b19b, #a9714f)",
-      chipColor: "#3f2413",
-    };
+    return { badge: "🥉" };
   }
-  return {
-    label: "Verified",
-    chipBg: "linear-gradient(135deg, #c7d2fe, #93c5fd)",
-    chipColor: "#1e3a8a",
-  };
+  return { badge: "🏅" };
 }
 
-function getInitials(name) {
-  if (!name) return "?";
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
+function DefaultAvatar() {
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        borderRadius: "50%",
+        background: "#e5e7eb",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="60%"
+        height="60%"
+        fill="#4b5563"
+      >
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8v1H4v-1z" />
+      </svg>
+    </div>
+  );
 }
 
 function Dashboard() {
@@ -202,15 +206,7 @@ function Dashboard() {
             width: "88px",
             height: "88px",
             borderRadius: "50%",
-            background: avatarUrl
-              ? `url(${avatarUrl}) center/cover no-repeat`
-              : "linear-gradient(135deg, #4338ca, #0ea5e9)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#ffffff",
-            fontSize: "28px",
-            fontWeight: 700,
+            overflow: "hidden",
             cursor: isVerified ? "pointer" : "default",
             border: "3px solid #ffffff",
             boxShadow: "0 6px 18px rgba(15,23,42,0.15)",
@@ -221,7 +217,15 @@ function Dashboard() {
               : "Available after verification"
           }
         >
-          {!avatarUrl && getInitials(user.full_name)}
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Profile"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <DefaultAvatar />
+          )}
         </div>
 
         {isVerified && (
@@ -247,11 +251,15 @@ function Dashboard() {
                 borderRadius: "999px",
                 fontSize: "12.5px",
                 fontWeight: 700,
-                background: tier.chipBg,
-                color: tier.chipColor,
+                background: "#eef2ff",
+                color: "#4338ca",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
               }}
             >
-              {tier.label}
+              <span>Verified ✓</span>
+              <span style={{ fontSize: "15px" }}>{tier.badge}</span>
             </div>
             <div
               style={{
@@ -323,7 +331,15 @@ function Dashboard() {
           <InfoRow label="Email" value={user.email} />
           <InfoRow
             label="KYC Status"
-            value={isVerified ? tier.label : "Not yet verified"}
+            value={
+              isVerified ? (
+                <>
+                  Verified <span style={{ fontSize: "15px" }}>{tier.badge}</span>
+                </>
+              ) : (
+                "Not yet verified"
+              )
+            }
             last
           />
         </div>
