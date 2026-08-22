@@ -985,8 +985,19 @@ export default function AdminUser() {
                           const newFile = e.target.files[0];
                           if (!newFile) return;
 
+                          const newLabel = window.prompt(
+                            "Document name/type (edit if needed):",
+                            document.document_type
+                          );
+                          if (newLabel === null) {
+                            e.target.value = "";
+                            return;
+                          }
+
+                          const finalLabel = newLabel.trim() || document.document_type;
+
                           const confirmed = window.confirm(
-                            `Replace "${document.original_name || document.file_name}" with "${newFile.name}"?`
+                            `Replace "${document.original_name || document.file_name}" with "${newFile.name}" (labeled "${finalLabel}")?`
                           );
                           if (!confirmed) {
                             e.target.value = "";
@@ -997,7 +1008,8 @@ export default function AdminUser() {
                             const fd = new FormData();
                             fd.append("file", newFile);
                             fd.append("user_id", id);
-                            fd.append("document_type", document.document_type);
+                            fd.append("document_type", finalLabel);
+                            fd.append("document_id", document.id);
 
                             const response = await adminFetch(
                               "https://veyid-api.info-veyid.workers.dev/admin/document/replace",
@@ -1009,8 +1021,8 @@ export default function AdminUser() {
                               setUserDetails((prev) => ({
                                 ...prev,
                                 documents: prev.documents.map((d) =>
-                                  d.document_type === document.document_type
-                                    ? { ...d, file_name: data.fileName, original_name: newFile.name }
+                                  d.id === document.id
+                                    ? { ...d, document_type: finalLabel, file_name: data.fileName, original_name: newFile.name }
                                     : d
                                 ),
                               }));
