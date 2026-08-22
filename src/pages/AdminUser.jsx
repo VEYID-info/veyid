@@ -976,43 +976,63 @@ export default function AdminUser() {
                         Download
                       </button>
 
-                      <button
-                        type="button"
-                        className="veyid-danger-button"
-                        onClick={async () => {
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,application/pdf"
+                        style={{ display: "none" }}
+                        id={`replace-input-${document.id}`}
+                        onChange={async (e) => {
+                          const newFile = e.target.files[0];
+                          if (!newFile) return;
+
                           const confirmed = window.confirm(
-                            `Delete "${document.original_name || document.file_name}"? This cannot be undone.`
+                            `Replace "${document.original_name || document.file_name}" with "${newFile.name}"?`
                           );
-                          if (!confirmed) return;
+                          if (!confirmed) {
+                            e.target.value = "";
+                            return;
+                          }
 
                           try {
+                            const fd = new FormData();
+                            fd.append("file", newFile);
+                            fd.append("user_id", id);
+                            fd.append("document_type", document.document_type);
+
                             const response = await adminFetch(
-                              "https://veyid-api.info-veyid.workers.dev/admin/document/delete",
-                              {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ fileName: document.file_name }),
-                              }
+                              "https://veyid-api.info-veyid.workers.dev/admin/document/replace",
+                              { method: "POST", body: fd }
                             );
                             const data = await response.json();
 
                             if (data.success) {
                               setUserDetails((prev) => ({
                                 ...prev,
-                                documents: prev.documents.filter(
-                                  (d) => d.file_name !== document.file_name
+                                documents: prev.documents.map((d) =>
+                                  d.document_type === document.document_type
+                                    ? { ...d, file_name: data.fileName, original_name: newFile.name }
+                                    : d
                                 ),
                               }));
                             } else {
-                              alert(data.error || "Failed to delete document.");
+                              alert(data.error || "Failed to replace document.");
                             }
                           } catch (err) {
-                            console.error("Delete document error:", err);
-                            alert("Unable to delete document.");
+                            console.error("Replace document error:", err);
+                            alert("Unable to replace document.");
+                          } finally {
+                            e.target.value = "";
                           }
                         }}
+                      />
+                      <button
+                        type="button"
+                        className="veyid-danger-button"
+                        onClick={() =>
+                          window.document.getElementById(`replace-input-${document.id}`).click()
+                        }
                       >
-                        Delete
+                        Replace
                       </button>
 
                     </div>
